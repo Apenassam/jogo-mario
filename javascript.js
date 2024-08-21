@@ -4,7 +4,7 @@ const pipe = document.querySelector('.pipe');
 const start = document.querySelector('.start');
 const gameOver = document.querySelector('.game-over');
 
-const audioStart = new Audio('path/to/start.mp3'); // Defina o caminho correto para o áudio
+const audioStart = new Audio('Stage Win (Super Mario) - QuickSounds.com.mp3'); // Defina o caminho correto para o áudio
 const audioGameOver = new Audio('path/to/game-over.mp3'); // Defina o caminho correto para o áudio
 
 const startGame = () => {
