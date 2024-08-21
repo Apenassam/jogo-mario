@@ -4,13 +4,22 @@ const pipe = document.querySelector('.pipe');
 const start = document.querySelector('.start');
 const gameOver = document.querySelector('.game-over');
 
-const audioStart = new Audio('Stage Win (Super Mario) - QuickSounds.com.mp3'); // Defina o caminho correto para o áudio
-const audioGameOver = new Audio('jogo-mario/Mario Death - QuickSounds.com.mp3'); // Defina o caminho correto para o áudio
+const audioStart = new Audio('Stage Win (Super Mario) - QuickSounds.com.mp3');
+const audioGameOver = new Audio('jogo-mario/Game Over #2 (Super Mario) - QuickSounds.com.mp3');
+
+let gameLoop; // Variável para armazenar o loop do jogo
+let gameStarted = false; // Variável para verificar se o jogo já começou
 
 const startGame = () => {
-    pipe.classList.add('pipe-animation');
-    start.style.display = 'none';
-    audioStart.play();
+    if (!gameStarted) { // Impedir que o jogo comece novamente se já estiver em andamento
+        gameStarted = true;
+        pipe.classList.add('pipe-animation');
+        start.style.display = 'none';
+        audioStart.currentTime = 0;
+        audioStart.loop = true; // Fazer com que a música do início fique em loop
+        audioStart.play();
+        gameLoop = setInterval(loop, 10);
+    }
 };
 
 const restartGame = () => {
@@ -21,13 +30,14 @@ const restartGame = () => {
     mario.style.width = '150px';
     mario.style.bottom = '0';
 
-    start.style.display = 'none';
-
     audioGameOver.pause();
     audioGameOver.currentTime = 0;
 
-    audioStart.play();
     audioStart.currentTime = 0;
+    audioStart.play();
+
+    pipe.classList.add('pipe-animation');
+    gameLoop = setInterval(loop, 10);
 };
 
 const jump = () => {
@@ -39,40 +49,30 @@ const jump = () => {
 };
 
 const loop = () => {
-    setInterval(() => {
-        const pipePosition = pipe.offsetLeft;
-        const marioPosition = parseFloat(window.getComputedStyle(mario).getPropertyValue('bottom').replace('px', ''));
-        if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80) {
+    const pipePosition = pipe.offsetLeft;
+    const marioPosition = parseFloat(window.getComputedStyle(mario).getPropertyValue('bottom').replace('px', ''));
+    
+    if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80) {
+        pipe.classList.remove('pipe-animation');
+        pipe.style.left = `${pipePosition}px`;
 
-            pipe.classList.remove('pipe-animation');
-            pipe.style.left = `${pipePosition}px`;
+        mario.classList.remove('jump');
+        mario.style.bottom = `${marioPosition}px`;
 
-            mario.classList.remove('jump');
-            mario.style.bottom = `${marioPosition}px`;
+        mario.src = 'imagens/game-over.png';
+        mario.style.width = '80px';
+        mario.style.marginLeft = '50px';
 
-            mario.src = 'imagens/game-over.png';
-            mario.style.width = '80px';
-            mario.style.marginLeft = '50px';
+        audioStart.pause(); // Pausar a música de início
+        audioGameOver.currentTime = 0;
+        audioGameOver.play(); // Tocar a música de "game over"
 
-            const stopAudioStart = () => {
-                audioStart.pause();
-            };
-            stopAudioStart();
+        gameOver.style.display = 'flex';
+        gameStarted = false; // Permitir reiniciar o jogo
 
-            audioGameOver.play();
-
-            setTimeout(() => {
-                audioGameOver.pause();
-            }, 7000);
-
-            gameOver.style.display = 'flex';
-
-            clearInterval(loop);
-        }
-    }, 10);
+        clearInterval(gameLoop); // Parar o loop do jogo
+    }
 };
-
-loop();
 
 document.addEventListener('keypress', e => {
     const tecla = e.key;
@@ -93,4 +93,3 @@ document.addEventListener('keypress', e => {
         startGame();
     }
 });
-
